@@ -1,0 +1,43 @@
+# Dependencies
+/frontend/node_modules
+/backend/node_modules
+/frontend/.pnp
+/frontend/.pnp.js
+/backend/.pnp
+/backend/.pnp.js
+
+# Environment files
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+/backend/.env
+/backend/.env.local
+/backend/.env.development.local
+/backend/.env.test.local
+/backend/.env.production.local
+
+# Debug logs
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/backend/npm-debug.log*
+/backend/yarn-debug.log*
+/backend/yarn-error.log*
+
+# Build folders
+/frontend/build
+/frontend/dist
+/backend/build
+/backend/dist
+
+# Cache
+.cache
+.next
+
+# IDE specific files
+.idea
+.vscode
+*.swp
+*.swo
