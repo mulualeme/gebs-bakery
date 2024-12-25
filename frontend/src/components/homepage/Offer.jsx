@@ -23,12 +23,13 @@ const Offer = () => {
               >
                 View Our Menu
               </Link>
-              <button
+              <Link
                 onClick={handleClick}
+                to="/support"
                 className="transform rounded-lg border-2 border-primary px-8 py-3 font-medium text-primary transition-all hover:scale-105 hover:bg-primary/10"
               >
                 Get in Touch
-              </button>
+              </Link>
             </div>
           </div>
         </div>
