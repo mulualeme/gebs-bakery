@@ -141,16 +141,17 @@ const MobileMenu = ({
               Support
             </Link>
 
-            <button
+            <Link
+              to="/feedback"
+              className="flex items-center rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-primary"
               onClick={() => {
                 setIsOpen(false);
                 handleClick();
               }}
-              className="flex w-full items-center rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-primary"
             >
               <MessageCircle className="mr-3 h-5 w-5" />
               Give us feedback
-            </button>
+            </Link>
 
             <div className="border-t border-gray-200" />
 

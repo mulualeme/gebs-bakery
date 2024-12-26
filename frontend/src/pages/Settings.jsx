@@ -1,16 +1,13 @@
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { updateUser } from "../redux/slices/authSlice";
+import { useSelector } from "react-redux";
 import { Save } from "lucide-react";
+import axios from "axios";
 
 export default function Settings() {
   const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
     phone: "",
     address: "",
     dietaryPreferences: [],
@@ -23,20 +20,39 @@ export default function Settings() {
   });
 
   useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/preferences`,
+          {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          },
+        );
+
+        setFormData({
+          phone: response.data.phone || "",
+          address: response.data.address || "",
+          dietaryPreferences: response.data.dietaryPreferences || [],
+          allergyInformation: response.data.allergyInformation || [],
+          marketingPreferences: response.data.marketingPreferences || {
+            emailNotifications: false,
+            smsNotifications: false,
+            specialOffers: false,
+          },
+        });
+      } catch (error) {
+        console.error("Error fetching preferences:", error);
+        setMessage({
+          type: "error",
+          text: "Failed to load preferences",
+        });
+      }
+    };
+
     if (user) {
-      setFormData({
-        name: user.name || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        address: user.address || "",
-        dietaryPreferences: user.dietaryPreferences || [],
-        allergyInformation: user.allergyInformation || [],
-        marketingPreferences: user.marketingPreferences || {
-          emailNotifications: false,
-          smsNotifications: false,
-          specialOffers: false,
-        },
-      });
+      fetchPreferences();
     }
   }, [user]);
 
@@ -70,12 +86,30 @@ export default function Settings() {
     setMessage({ type: "", text: "" });
 
     try {
-      await dispatch(updateUser(formData)).unwrap();
-      setMessage({ type: "success", text: "Settings updated successfully!" });
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/preferences`,
+        {
+          phone: formData.phone,
+          address: formData.address,
+          dietaryPreferences: formData.dietaryPreferences,
+          allergyInformation: formData.allergyInformation,
+          marketingPreferences: formData.marketingPreferences,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        },
+      );
+
+      setMessage({
+        type: "success",
+        text: "Preferences updated successfully!",
+      });
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.message || "Failed to update settings",
+        text: error.response?.data?.message || "Failed to update preferences",
       });
     } finally {
       setLoading(false);
@@ -92,8 +126,7 @@ export default function Settings() {
                 User Preferences
               </h2>
               <p className="mt-1 text-sm text-gray-600">
-                Update your profile and preferences to personalize your
-                experience.
+                Update your preferences to personalize your experience.
               </p>
 
               {message.text && (
@@ -116,10 +149,9 @@ export default function Settings() {
                     </label>
                     <input
                       type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      value={user.name}
+                      readOnly
+                      className="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500"
                     />
                   </div>
 
@@ -129,10 +161,9 @@ export default function Settings() {
                     </label>
                     <input
                       type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      value={user.email}
+                      readOnly
+                      className="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500"
                     />
                   </div>
 

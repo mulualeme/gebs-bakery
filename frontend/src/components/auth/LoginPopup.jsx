@@ -6,7 +6,7 @@ import { login } from "../../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import SignupPopup from "./SignupPopup";
 
-export function LoginPopup({ isOpen, onClose, redirectToCheckout = false }) {
+export function LoginPopup({ isOpen, onClose, redirectAfterLogin = "/" }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -30,10 +30,8 @@ export function LoginPopup({ isOpen, onClose, redirectToCheckout = false }) {
     try {
       const resultAction = await dispatch(login(formData));
       if (login.fulfilled.match(resultAction)) {
-        if (redirectToCheckout) {
-          navigate("/checkout", { replace: true });
-        }
         onClose();
+        navigate(redirectAfterLogin, { replace: true });
       }
     } catch (err) {
       console.error("Login failed:", err);
@@ -57,7 +55,7 @@ export function LoginPopup({ isOpen, onClose, redirectToCheckout = false }) {
           isOpen={isOpen}
           onClose={onClose}
           switchToLogin={switchToLogin}
-          redirectToCheckout={redirectToCheckout}
+          redirectAfterLogin={redirectAfterLogin}
         />
       ) : (
         <motion.div

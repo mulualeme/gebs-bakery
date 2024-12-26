@@ -10,6 +10,7 @@ import Footer from "./components/footer/Footer";
 import Settings from "./pages/Settings";
 import Support from "./pages/Support";
 import Feedback from "./pages/Feedback";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 import { CartProvider } from "./context/CartContext";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -30,9 +31,23 @@ export default function App() {
                 <Route path="/about" element={<About />} />
                 <Route path="/catering" element={<Catering />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="/support" element={<Support />} />
-                <Route path="/feedback" element={<Feedback />} />
+                <Route
+                  path="/feedback"
+                  element={
+                    <ProtectedRoute>
+                      <Feedback />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/order-confirmation"
                   element={<OrderConfirmation />}
