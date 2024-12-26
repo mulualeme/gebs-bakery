@@ -88,7 +88,7 @@ export default function Settings() {
         <div className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
           <div className="px-4 py-6 sm:p-8">
             <div className="mx-auto max-w-2xl">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="font-serif text-2xl font-bold text-primary">
                 User Preferences
               </h2>
               <p className="mt-1 text-sm text-gray-600">

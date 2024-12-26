@@ -71,7 +71,7 @@ export default function Feedback() {
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="rounded-xl bg-white p-6 shadow-md">
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="font-serif text-3xl font-bold text-primary">
               Give us Feedback
             </h1>
             <p className="mt-2 text-gray-600">

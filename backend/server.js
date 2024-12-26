@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes.js";
 import menuRoutes from "./routes/menuRoutes.js";
+import feedbackRoutes from "./routes/feedbackRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -36,6 +37,7 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/menu", menuRoutes);
+app.use("/api/feedback", feedbackRoutes);
 
 // Test route
 app.get("/", (req, res) => {
