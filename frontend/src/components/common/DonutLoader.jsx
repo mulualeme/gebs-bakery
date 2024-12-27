@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import loaderImage from "../../assets/loader.png";
 
 const DonutLoader = ({ size = "md", message = "Loading..." }) => {
   // Size variants for the donut
+  const apiUrl = import.meta.env.VITE_API_URL;
   const sizes = {
     sm: "w-12 h-12",
     md: "w-16 h-16",
@@ -13,7 +13,7 @@ const DonutLoader = ({ size = "md", message = "Loading..." }) => {
     <div className="flex flex-col items-center justify-center">
       <div className={`relative ${sizes[size]}`}>
         <motion.img
-          src={loaderImage}
+          src={`${apiUrl}/assets/loader.png`}
           alt="Loading..."
           className="h-full w-full object-contain"
           transition={{

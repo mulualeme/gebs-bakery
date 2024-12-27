@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import path from "path";
+import { fileURLToPath } from "url";
 import authRoutes from "./routes/authRoutes.js";
 import menuRoutes from "./routes/menuRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
@@ -12,6 +14,10 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+// ES Module fix for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Connect to MongoDB
 mongoose
@@ -41,6 +47,9 @@ app.use(
   })
 );
 app.use(express.json());
+
+// Serve static files
+app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
 // Routes
 app.use("/api/auth", authRoutes);

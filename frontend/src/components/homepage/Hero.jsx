@@ -4,6 +4,7 @@ import SocialMediaButton from "./SocialMediaButton";
 import { Link } from "react-router-dom";
 
 const Hero = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const handleClick = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -39,7 +40,10 @@ const Hero = () => {
             </div>
           </div>
           <div className="relative w-full max-w-lg lg:w-1/2">
-            <img src="src/assets/hero-image.png" alt="Fresh baked goods" />
+            <img
+              src={`${apiUrl}/assets/hero-image.png`}
+              alt="Fresh baked goods"
+            />
           </div>
         </div>
       </div>
