@@ -18,18 +18,15 @@ export default function Settings() {
       specialOffers: false,
     },
   });
-
+  const apiUrl = `${import.meta.env.VITE_API_URL}/api/preferences`;
   useEffect(() => {
     const fetchPreferences = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/preferences`,
-          {
-            headers: {
-              Authorization: `Bearer ${user.token}`,
-            },
+        const response = await axios.get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
           },
-        );
+        });
 
         setFormData({
           phone: response.data.phone || "",
@@ -87,7 +84,7 @@ export default function Settings() {
 
     try {
       await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/preferences`,
+        apiUrl,
         {
           phone: formData.phone,
           address: formData.address,

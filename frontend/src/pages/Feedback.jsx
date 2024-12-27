@@ -14,15 +14,14 @@ export default function Feedback() {
     subject: "",
     message: "",
   });
-
+  const apiUrl = `${import.meta.env.VITE_API_URL}/api/feedback`;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage({ type: "", text: "" });
 
     try {
-      await axios.post(
-        "http://localhost:5000/api/feedback",
+      await axios.post(apiUrl, 
         {
           ...formData,
           rating,
