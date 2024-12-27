@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import About from "./pages/About";
@@ -11,6 +12,7 @@ import Settings from "./pages/Settings";
 import Support from "./pages/Support";
 import Feedback from "./pages/Feedback";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import LoadingScreen from "./components/common/LoadingScreen";
 
 import { CartProvider } from "./context/CartContext";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -18,6 +20,26 @@ import { Provider } from "react-redux";
 import store from "./redux/store";
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate checking auth state and loading initial data
+    const initializeApp = async () => {
+      try {
+        // Add any initialization logic here
+        await new Promise((resolve) => setTimeout(resolve, 1500)); // Minimum loading time
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeApp();
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen message="Loading Geb's Bakery..." />;
+  }
+
   return (
     <Provider store={store}>
       <CartProvider>

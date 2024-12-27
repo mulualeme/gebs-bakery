@@ -1,4 +1,4 @@
-import DonutLoader from "./DonutLoader";
+import Loader from "./Loader";
 
 const LoadingScreen = ({ message, fullScreen = true }) => {
   const containerClasses = fullScreen
@@ -7,7 +7,7 @@ const LoadingScreen = ({ message, fullScreen = true }) => {
 
   return (
     <div className={`flex items-center justify-center ${containerClasses}`}>
-      <DonutLoader message={message} size="lg" />
+      <Loader message={message} size="lg" />
     </div>
   );
 };

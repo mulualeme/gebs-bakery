@@ -8,7 +8,6 @@ import axios from "axios";
 function OurProducts() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -18,10 +17,8 @@ function OurProducts() {
           `${import.meta.env.VITE_API_URL}/api/menu`,
         );
         setProducts(response.data);
-        setLoading(false);
       } catch (err) {
         setError("Failed to fetch products. Please try again later.");
-        setLoading(false);
         console.error("Error fetching products:", err);
       }
     };
@@ -40,18 +37,6 @@ function OurProducts() {
   const handleClosePopup = () => {
     setSelectedProduct(null);
   };
-
-  if (loading) {
-    return (
-      <section className="relative overflow-hidden bg-gray-50 py-12 sm:py-16 lg:py-20">
-        <div className="mx-auto w-full px-4 sm:max-w-7xl sm:px-6 lg:px-8">
-          <div className="flex min-h-[400px] items-center justify-center">
-            <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   if (error) {
     return (
