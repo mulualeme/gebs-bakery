@@ -37,7 +37,7 @@ export default function App() {
   }, []);
 
   if (isLoading) {
-    return <LoadingScreen message="Loading Geb's Bakery..." />;
+    return <LoadingScreen message="Loading Gebs Bakery..." />;
   }
 
   return (
