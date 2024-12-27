@@ -137,16 +137,16 @@ const Menu = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid gap-8 lg:grid-cols-[280px,1fr]">
+    <div className="min-h-screen bg-gray-50 pt-14 sm:pt-16">
+      <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:px-8">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[240px,1fr] lg:gap-8 xl:grid-cols-[280px,1fr]">
           {/* Sidebar - now with horizontal scroll on mobile */}
-          <div className="overflow-x-auto pb-4 lg:space-y-4 lg:pb-0">
-            <h2 className="mb-4 text-xl font-bold text-gray-900 lg:mb-0">
+          <div className="overflow-x-auto pb-2 sm:pb-4 lg:pb-0">
+            <h2 className="mb-3 text-lg font-bold text-gray-900 sm:text-xl lg:mb-4">
               Categories
             </h2>
-            <div className="overflow-x-auto pb-4 lg:pb-0">
-              <div className="flex min-w-max gap-3 lg:min-w-0 lg:flex-col">
+            <div className="overflow-x-auto pb-2 sm:pb-4 lg:pb-0">
+              <div className="flex min-w-max gap-2 sm:gap-3 lg:min-w-0 lg:flex-col">
                 {categories.map((category) => (
                   <CategoryButton
                     key={category.id}
@@ -162,10 +162,10 @@ const Menu = () => {
           </div>
 
           {/* Main Content */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:gap-5 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
               {filteredItems.map((item) => (
                 <MenuCard
                   key={item._id}
