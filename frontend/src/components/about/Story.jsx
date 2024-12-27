@@ -55,7 +55,7 @@ export function Story() {
         <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
           <div>
             <img
-              src="src\assets\baker.jpg"
+              src={`${import.meta.env.VITE_API_URL}/assets/baker.jpg`}
               alt="Our bakery"
               className="scale-75 rounded-lg shadow-lg"
             />
