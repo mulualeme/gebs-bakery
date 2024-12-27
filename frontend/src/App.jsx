@@ -74,7 +74,7 @@ export default function App() {
                   path="/order-confirmation"
                   element={<OrderConfirmation />}
                 />
-                <Route path="/*" element={<Error404 />} />
+                <Route path="/" element={<Error404 />} />
               </Routes>
             </main>
             <Footer />
