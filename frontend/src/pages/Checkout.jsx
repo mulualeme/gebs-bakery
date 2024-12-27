@@ -2,18 +2,17 @@ import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CreditCard, MapPin, Truck, Store } from "lucide-react";
+import { MapPin, Truck, Store, Wallet } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addOrder } from "../redux/slices/userSlice";
 import { LoginPopup } from "../components/auth/LoginPopup";
 import {
-  formatCardNumber,
-  formatExpiryDate,
   formatPhoneNumber,
   validateForm as validateFormHelper,
 } from "../utils/helper";
 
 export default function Checkout() {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const handleClick = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -24,14 +23,12 @@ export default function Checkout() {
   const [showLogin, setShowLogin] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState("delivery");
   const [formErrors, setFormErrors] = useState({});
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
   });
 
   useEffect(() => {
@@ -49,8 +46,37 @@ export default function Checkout() {
       return;
     }
 
+    // Fetch user preferences and populate form
+    const fetchUserPreferences = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/api/preferences`, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        });
+        const data = await response.json();
+
+        setFormData({
+          name: user.name || "",
+          email: user.email || "",
+          phone: data.phone || "",
+          address: data.address || "",
+        });
+      } catch (error) {
+        console.error("Error fetching user preferences:", error);
+        // Fallback to user data only if preferences fetch fails
+        setFormData({
+          name: user.name || "",
+          email: user.email || "",
+          phone: "",
+          address: "",
+        });
+      }
+    };
+
+    fetchUserPreferences();
     console.log("User and items verified, rendering checkout");
-  }, [user, items, navigate]);
+  }, [user, items, navigate, apiUrl]);
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -64,18 +90,8 @@ export default function Checkout() {
     let formattedValue = value;
 
     // Apply formatting based on field type
-    switch (name) {
-      case "cardNumber":
-        formattedValue = formatCardNumber(value);
-        break;
-      case "expiryDate":
-        formattedValue = formatExpiryDate(value);
-        break;
-      case "phone":
-        formattedValue = formatPhoneNumber(value);
-        break;
-      default:
-        formattedValue = value;
+    if (name === "phone") {
+      formattedValue = formatPhoneNumber(value);
     }
 
     setFormData((prev) => ({ ...prev, [name]: formattedValue }));
@@ -93,15 +109,20 @@ export default function Checkout() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("Form submitted"); // Debug log
 
     if (!validateForm()) {
+      console.log("Form validation failed"); // Debug log
       return;
     }
 
     if (!user) {
       setShowLogin(true);
+      console.log("User not logged in, showing login popup"); // Debug log
       return;
     }
+
+    // Proceed with order creation
 
     // Create new order object
     const newOrder = {
@@ -220,9 +241,7 @@ export default function Checkout() {
                     <p className="text-sm font-medium text-gray-700">
                       Pickup Location
                     </p>
-                    <p className="text-sm text-gray-600">
-                      123 Baker Street, New York, NY 10001
-                    </p>
+                    <p className="text-sm text-gray-600">Adwa Rd, Bahir Dar</p>
                     <p className="text-sm text-gray-600">Open: 7 AM - 9 PM</p>
                   </div>
                 )}
@@ -253,10 +272,8 @@ export default function Checkout() {
                       type="text"
                       name="name"
                       value={formData.name}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                      required
-                      minLength={2}
+                      readOnly
+                      className="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500"
                     />
                   </div>
                   <div>
@@ -267,24 +284,13 @@ export default function Checkout() {
                       type="email"
                       name="email"
                       value={formData.email}
-                      onChange={handleChange}
-                      placeholder="example@email.com"
-                      className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 ${
-                        formErrors.email
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-gray-300 focus:border-primary focus:ring-primary"
-                      }`}
-                      required
+                      readOnly
+                      className="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500"
                     />
-                    {formErrors.email && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {formErrors.email}
-                      </p>
-                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Phone
+                      Phone Number
                     </label>
                     <input
                       type="tel"
@@ -327,84 +333,75 @@ export default function Checkout() {
               {/* Payment Information */}
               <div className="space-y-4">
                 <h3 className="flex items-center gap-2 font-medium text-gray-700">
-                  <CreditCard className="h-5 w-5 text-primary" />
-                  Payment Information
+                  <Wallet className="h-5 w-5 text-primary" />
+                  Payment Method
                 </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Card Number
-                    </label>
-                    <input
-                      type="text"
-                      name="cardNumber"
-                      value={formData.cardNumber}
-                      onChange={handleChange}
-                      placeholder="1234 5678 9012 3456"
-                      className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 ${
-                        formErrors.cardNumber
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-gray-300 focus:border-primary focus:ring-primary"
-                      }`}
-                      required
-                      maxLength={19}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("cash")}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 text-center transition-colors ${
+                      paymentMethod === "cash"
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <Wallet className="h-6 w-6 text-primary" />
+                    </div>
+                    <p className="text-sm font-medium">Cash</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("telebirr")}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 text-center transition-colors ${
+                      paymentMethod === "telebirr"
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <img
+                      src={`${apiUrl}/assets/telebirr.png`}
+                      alt="Telebirr"
+                      className="h-12 w-12 rounded-lg object-contain"
                     />
-                    {formErrors.cardNumber && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {formErrors.cardNumber}
-                      </p>
-                    )}
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Expiry Date
-                      </label>
-                      <input
-                        type="text"
-                        name="expiryDate"
-                        value={formData.expiryDate}
-                        onChange={handleChange}
-                        placeholder="MM/YY"
-                        className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 ${
-                          formErrors.expiryDate
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:border-primary focus:ring-primary"
-                        }`}
-                        required
-                        maxLength={5}
-                      />
-                      {formErrors.expiryDate && (
-                        <p className="mt-1 text-sm text-red-500">
-                          {formErrors.expiryDate}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        CVV
-                      </label>
-                      <input
-                        type="text"
-                        name="cvv"
-                        value={formData.cvv}
-                        onChange={handleChange}
-                        placeholder="123"
-                        className={`mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1 ${
-                          formErrors.cvv
-                            ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:border-primary focus:ring-primary"
-                        }`}
-                        required
-                        maxLength={4}
-                      />
-                      {formErrors.cvv && (
-                        <p className="mt-1 text-sm text-red-500">
-                          {formErrors.cvv}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                    <p className="text-sm font-medium">Telebirr</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("cbebirr")}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 text-center transition-colors ${
+                      paymentMethod === "cbebirr"
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <img
+                      src={`${apiUrl}/assets/cbe.png`}
+                      alt="CBE Birr"
+                      className="h-12 w-12 rounded-lg object-contain"
+                    />
+                    <p className="text-sm font-medium">CBE Birr</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("chapa")}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 text-center transition-colors ${
+                      paymentMethod === "chapa"
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <img
+                      src={`${apiUrl}/assets/chapa.png`}
+                      alt="Chapa"
+                      className="h-12 w-12 rounded-lg object-contain"
+                    />
+                    <p className="text-sm font-medium">Chapa</p>
+                  </button>
                 </div>
               </div>
 
@@ -413,7 +410,7 @@ export default function Checkout() {
                 type="submit"
                 className="w-full rounded-lg bg-primary py-3 text-center font-medium text-white transition-colors hover:bg-primary/90"
               >
-                Pay ${total.toFixed(2)}
+                Place Order - ${total.toFixed(2)}
               </button>
             </motion.form>
           </div>

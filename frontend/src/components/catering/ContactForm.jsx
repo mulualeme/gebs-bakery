@@ -1,70 +1,95 @@
-import { useState } from "react";
-import { Phone, Mail, FileDown } from "lucide-react";
+import { useState, useEffect } from "react";
 
-const ContactForm = () => {
+const ContactForm = ({ onSubmit, submissionStatus, userPreferences }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
+    eventType: "",
     eventDate: "",
     guestCount: "",
-    eventType: "",
+    location: "",
     message: "",
+    budget: "",
+    preferences: {
+      dietary: [],
+      allergies: [],
+    },
   });
+
+  // Populate form with user preferences when available
+  useEffect(() => {
+    if (userPreferences) {
+      setFormData((prev) => ({
+        ...prev,
+        name: userPreferences.name || "",
+        email: userPreferences.email || "",
+        phone: userPreferences.phone || "",
+        location: userPreferences.address || "",
+        preferences: {
+          dietary: userPreferences.dietaryPreferences || [],
+          allergies: userPreferences.allergyInformation || [],
+        },
+      }));
+    }
+  }, [userPreferences]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name.startsWith("preferences.")) {
+      const [, field] = name.split(".");
+      setFormData((prev) => ({
+        ...prev,
+        preferences: {
+          ...prev.preferences,
+          [field]: value,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Convert guestCount to number before submission
+    const submissionData = {
+      ...formData,
+      guestCount: parseInt(formData.guestCount, 10),
+    };
+    onSubmit(submissionData);
   };
 
   return (
-    <section className="bg-gray-50 py-16">
+    <section className="bg-gray-50 py-12 sm:py-16 lg:py-20" id="contact">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div>
-            <h2 className="mb-4 font-serif text-3xl font-bold text-primary">
-              Get in Touch
-            </h2>
-            <p className="mb-8 text-lg text-gray-600">
-              Let us help you plan your perfect event. Fill out the form below,
-              and we&apos;ll get back to you within 24 hours.
-            </p>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <Phone className="h-6 w-6 text-primary" />
-                <span className="text-lg">123-456-7890</span>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Mail className="h-6 w-6 text-primary" />
-                <span className="text-lg">catering@gebsbakery.com</span>
-              </div>
-              <button className="mt-4 flex items-center space-x-2 rounded-lg border-2 border-primary px-6 py-2 text-primary transition-colors hover:bg-primary/10">
-                <FileDown className="h-5 w-5" />
-                <span>Download Catering Menu</span>
-              </button>
-            </div>
-          </div>
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-serif text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Request a <span className="text-primary">Quote</span>
+          </h2>
+          <p className="mt-4 text-lg text-gray-600">
+            Fill out the form below and we&apos;ll get back to you within 24
+            hours
+          </p>
+        </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-6 rounded-lg bg-white p-6 shadow-lg"
-          >
-            <div className="grid gap-6 md:grid-cols-2">
+        <div className="mx-auto mt-12 max-w-xl">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Name
+                  Full Name
                 </label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   required
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div>
@@ -76,53 +101,24 @@ const ContactForm = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   required
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Phone
+                  Phone Number
                 </label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Event Date
-                </label>
-                <input
-                  type="date"
-                  name="eventDate"
-                  value={formData.eventDate}
-                  onChange={handleChange}
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Guest Count
-                </label>
-                <input
-                  type="number"
-                  name="guestCount"
-                  value={formData.guestCount}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                  required
                 />
               </div>
               <div>
@@ -133,36 +129,114 @@ const ContactForm = () => {
                   name="eventType"
                   value={formData.eventType}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   required
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   <option value="">Select event type</option>
                   <option value="wedding">Wedding</option>
                   <option value="birthday">Birthday</option>
-                  <option value="corporate">Corporate</option>
+                  <option value="corporate">Corporate Event</option>
                   <option value="other">Other</option>
                 </select>
               </div>
             </div>
 
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Event Date
+                </label>
+                <input
+                  type="date"
+                  name="eventDate"
+                  value={formData.eventDate}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Number of Guests
+                </label>
+                <input
+                  type="number"
+                  name="guestCount"
+                  value={formData.guestCount}
+                  onChange={handleChange}
+                  required
+                  min="1"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Special Requests
+                Event Location
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                required
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Budget Range
+              </label>
+              <select
+                name="budget"
+                value={formData.budget}
+                onChange={handleChange}
+                required
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="">Select budget range</option>
+                <option value="1000-2000">$1,000 - $2,000</option>
+                <option value="2000-5000">$2,000 - $5,000</option>
+                <option value="5000-10000">$5,000 - $10,000</option>
+                <option value="10000+">$10,000+</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Special Requests or Additional Information
               </label>
               <textarea
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
                 rows={4}
+                required
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              ></textarea>
+              />
             </div>
+
+            {submissionStatus.error && (
+              <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
+                {submissionStatus.error}
+              </div>
+            )}
+
+            {submissionStatus.success && (
+              <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
+                Your inquiry has been submitted successfully! We&apos;ll get
+                back to you soon.
+              </div>
+            )}
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-primary px-6 py-3 font-medium text-white transition-transform hover:scale-105"
+              disabled={submissionStatus.loading}
+              className="w-full rounded-md bg-primary py-3 text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
-              Submit Inquiry
+              {submissionStatus.loading ? "Submitting..." : "Submit Inquiry"}
             </button>
           </form>
         </div>

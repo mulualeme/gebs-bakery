@@ -1,4 +1,5 @@
 function WhyGebs() {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const items = [
     {
       icon: "👜",
@@ -23,12 +24,12 @@ function WhyGebs() {
   return (
     <section className="relative py-24">
       <img
-        src="src/assets/wheat.svg"
+        src={`${apiUrl}/assets/wheat.svg`}
         alt="Wheat decoration"
         className="absolute left-0 top-0 hidden h-32 w-32 -translate-x-8 -translate-y-4 transform lg:block"
       />
       <div className="container mx-auto px-6 pb-20">
-        <h2 className="mb-16 text-center font-libre text-5xl font-bold text-primary">
+        <h2 className="font-libre mb-16 text-center text-5xl font-bold text-primary">
           Why Gebs?
         </h2>
         <div className="flex flex-col items-center justify-center gap-8 md:flex-row">
@@ -45,10 +46,10 @@ function WhyGebs() {
                   {item.icon}
                 </div>
               </div>
-              <h3 className="mt-4 font-OutFit text-xl font-bold text-primary">
+              <h3 className="font-OutFit mt-4 text-xl font-bold text-primary">
                 {item.title}
               </h3>
-              <p className="mt-2 font-poppins text-gray-600">
+              <p className="font-poppins mt-2 text-gray-600">
                 {item.description}
               </p>
             </article>

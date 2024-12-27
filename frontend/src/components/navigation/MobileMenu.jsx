@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import {
   User,
   LogOut,
@@ -23,6 +24,23 @@ const MobileMenu = ({
 }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, setIsOpen]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -41,6 +59,7 @@ const MobileMenu = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       className="absolute left-0 right-0 top-16 z-20 bg-white px-4 py-2 shadow-lg md:hidden"
+      ref={menuRef}
     >
       <div className="space-y-1">
         {user && (

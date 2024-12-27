@@ -30,31 +30,38 @@ export const formatPhoneNumber = (value) => {
 };
 
 // Form validation
-export const validateForm = (formData) => {
-  // Card number validation (16 digits)
-  const cardNumberValid = formData.cardNumber.replace(/\s/g, "").length === 16;
+export const validateForm = (formData = {}) => {
+  const errors = {};
 
-  // Expiry date validation (MM/YY format)
-  const expiryValid = /^\d{2}\/\d{2}$/.test(formData.expiryDate);
-
-  // CVV validation (3-4 digits)
-  const cvvValid = /^\d{3,4}$/.test(formData.cvv);
-
-  // Phone validation (10 digits)
-  const phoneValid = formData.phone.replace(/\D/g, "").length === 10;
+  // Name validation
+  if (!formData.name?.trim()) {
+    errors.name = "Name is required";
+  }
 
   // Email validation
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+  if (!formData.email?.trim()) {
+    errors.email = "Email is required";
+  } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    errors.email = "Invalid email format";
+  }
+
+  // Phone validation
+  if (!formData.phone?.trim()) {
+    errors.phone = "Phone number is required";
+  } else {
+    const cleanedPhone = formData.phone.replace(/\D/g, "");
+    if (cleanedPhone.length < 10) {
+      errors.phone = "Phone number must be at least 10 digits";
+    }
+  }
+
+  // Address validation
+  if (!formData.address?.trim()) {
+    errors.address = "Address is required";
+  }
 
   return {
-    isValid:
-      cardNumberValid && expiryValid && cvvValid && phoneValid && emailValid,
-    errors: {
-      cardNumber: !cardNumberValid ? "Invalid card number" : "",
-      expiryDate: !expiryValid ? "Invalid expiry date" : "",
-      cvv: !cvvValid ? "Invalid CVV" : "",
-      phone: !phoneValid ? "Invalid phone number" : "",
-      email: !emailValid ? "Invalid email address" : "",
-    },
+    isValid: Object.keys(errors).length === 0,
+    errors,
   };
 };

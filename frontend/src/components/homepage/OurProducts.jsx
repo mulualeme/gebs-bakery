@@ -30,10 +30,6 @@ function OurProducts() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleViewDetails = (product) => {
-    setSelectedProduct(product);
-  };
-
   const handleClosePopup = () => {
     setSelectedProduct(null);
   };
@@ -77,7 +73,8 @@ function OurProducts() {
           {products.slice(0, 6).map((product) => (
             <div
               key={product._id}
-              className="group relative overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
+              onClick={() => setSelectedProduct(product)}
+              className="group relative cursor-pointer overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
             >
               {/* Image Container */}
               <div className="relative aspect-[4/3] overflow-hidden">
@@ -101,19 +98,10 @@ function OurProducts() {
                 <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary sm:text-xl">
                   {product.name}
                 </h3>
-                <div className="mt-3 flex items-center justify-between">
+                <div className="mt-3">
                   <span className="text-lg font-bold text-primary">
                     ${product.price}
                   </span>
-                  <button
-                    onClick={() => handleViewDetails(product)}
-                    className="transform opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
-                  >
-                    <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
-                      View Details
-                      <FaArrowRight className="h-4 w-4" />
-                    </span>
-                  </button>
                 </div>
               </div>
             </div>

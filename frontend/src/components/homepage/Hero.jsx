@@ -12,7 +12,7 @@ const Hero = () => {
   return (
     <section className="relative flex min-h-screen items-center bg-gray-50">
       <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center gap-8 lg:flex-row lg:justify-between">
+        <div className="flex flex-col gap-8 lg:flex-row lg:justify-center">
           <div className="max-w-xl text-center lg:text-left">
             <h2 className="font-serif text-xl font-semibold text-gray-900">
               Fresh and Tasty
@@ -43,6 +43,7 @@ const Hero = () => {
             <img
               src={`${apiUrl}/assets/hero-image.png`}
               alt="Fresh baked goods"
+              className="mx-auto w-full"
             />
           </div>
         </div>

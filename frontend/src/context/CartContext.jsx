@@ -1,9 +1,18 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext(undefined);
 
 export function CartProvider({ children }) {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(() => {
+    // Initialize cart items from localStorage
+    const savedItems = localStorage.getItem("cartItems");
+    return savedItems ? JSON.parse(savedItems) : [];
+  });
+
+  // Save cart items to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(items));
+  }, [items]);
 
   const addToCart = (newItem) => {
     setItems((currentItems) => {
@@ -45,6 +54,7 @@ export function CartProvider({ children }) {
 
   const clearCart = () => {
     setItems([]);
+    localStorage.removeItem("cartItems");
   };
 
   return (
