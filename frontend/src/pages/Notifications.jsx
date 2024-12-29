@@ -138,6 +138,10 @@ export default function Notifications() {
     }
   };
 
+  const hasUnreadNotifications = notifications.some(
+    (notification) => !notification.isRead,
+  );
+
   if (!user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 pt-16">
@@ -159,7 +163,7 @@ export default function Notifications() {
             <Bell className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
           </div>
-          {notifications.length > 0 && (
+          {notifications.length > 0 && hasUnreadNotifications && (
             <button
               onClick={handleMarkAllAsRead}
               className="flex items-center gap-1 rounded-lg px-3 py-1 text-sm font-medium text-primary hover:bg-primary/10"

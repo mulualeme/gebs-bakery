@@ -12,7 +12,7 @@ const Hero = () => {
   return (
     <section className="relative flex min-h-screen items-center bg-gray-50">
       <div className="container mx-auto px-6 py-12">
-        <div className="flex flex-col gap-8 lg:flex-row lg:justify-center">
+        <div className="flex flex-col gap-14 lg:flex-row lg:justify-center">
           <div className="max-w-xl text-center lg:text-left">
             <h2 className="font-serif text-xl font-semibold text-gray-900">
               Fresh and Tasty
