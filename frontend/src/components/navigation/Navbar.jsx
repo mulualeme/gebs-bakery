@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { io } from "socket.io-client";
 import {
   Menu,
   ShoppingCart,
@@ -41,34 +40,14 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState([]);
   const { items } = useCart();
   const dispatch = useDispatch();
-
   const { user } = useSelector((state) => state.auth);
   const location = useLocation();
   const profileMenuRef = useRef(null);
   const isScrollingDown = useScrollDirection();
-  const socketRef = useRef(null);
 
   useEffect(() => {
     if (user) {
-      // Connect to WebSocket server
-      socketRef.current = io(import.meta.env.VITE_API_URL, {
-        auth: { token: user.token },
-      });
-
-      // Listen for new notifications
-      socketRef.current.on("newNotification", (notification) => {
-        setNotifications((prev) => [notification, ...prev]);
-      });
-
-      // Fetch existing notifications
       fetchNotifications();
-
-      // Cleanup on unmount
-      return () => {
-        if (socketRef.current) {
-          socketRef.current.disconnect();
-        }
-      };
     }
   }, [user]);
 
@@ -82,7 +61,7 @@ const Navbar = () => {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },
-        },
+        }
       );
 
       if (!response.ok) {
@@ -129,7 +108,7 @@ const Navbar = () => {
   };
 
   const unreadNotificationsCount = notifications.filter(
-    (notification) => !notification.isRead,
+    (notification) => !notification.isRead
   ).length;
 
   return (
