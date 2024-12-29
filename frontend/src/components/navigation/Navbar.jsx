@@ -47,7 +47,14 @@ const Navbar = () => {
 
   useEffect(() => {
     if (user) {
+      // Initial fetch
       fetchNotifications();
+
+      // Set up polling every 10 seconds
+      const interval = setInterval(fetchNotifications, 10000);
+
+      // Cleanup interval on unmount or when user logs out
+      return () => clearInterval(interval);
     }
   }, [user]);
 
@@ -61,7 +68,7 @@ const Navbar = () => {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -69,7 +76,17 @@ const Navbar = () => {
       }
 
       const data = await response.json();
-      setNotifications(data.notifications);
+
+      // Compare with current notifications to check for new ones
+      const currentIds = new Set(notifications.map((n) => n._id));
+      const hasNewNotifications = data.notifications.some(
+        (n) => !currentIds.has(n._id),
+      );
+
+      // Update notifications if there are changes
+      if (hasNewNotifications) {
+        setNotifications(data.notifications);
+      }
     } catch (error) {
       console.error("Error fetching notifications:", error);
     }
@@ -108,7 +125,7 @@ const Navbar = () => {
   };
 
   const unreadNotificationsCount = notifications.filter(
-    (notification) => !notification.isRead
+    (notification) => !notification.isRead,
   ).length;
 
   return (

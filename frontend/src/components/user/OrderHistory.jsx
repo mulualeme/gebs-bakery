@@ -215,7 +215,7 @@ export function OrderHistory({ isOpen, onClose }) {
             <div className="text-center text-red-600">{error}</div>
           ) : orders.length === 0 ? (
             <div className="text-center text-gray-500">
-              No orders yet. Start shopping!
+              No orders yet. Start ordering!
             </div>
           ) : (
             <div className="space-y-4">
