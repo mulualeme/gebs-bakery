@@ -1,12 +1,17 @@
 import { motion } from "framer-motion";
 import { CheckCircle, ArrowLeft, Truck, Store } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function OrderConfirmation() {
   const location = useLocation();
   const { deliveryMethod, address } = location.state || {
     deliveryMethod: "delivery",
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">

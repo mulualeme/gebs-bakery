@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   User,
   LogOut,
@@ -25,6 +25,7 @@ const MobileMenu = ({
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const menuRef = useRef(null);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -41,6 +42,40 @@ const MobileMenu = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, setIsOpen]);
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/notifications`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch notifications");
+      }
+
+      const data = await response.json();
+      setNotifications(data.notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const unreadNotificationsCount = notifications.filter(
+    (notification) => !notification.isRead,
+  ).length;
 
   const handleLogout = () => {
     dispatch(logout());
@@ -130,7 +165,14 @@ const MobileMenu = ({
                 handleClick();
               }}
             >
-              <Bell className="mr-3 h-5 w-5" />
+              <div className="relative">
+                <Bell className="mr-3 h-5 w-5" />
+                {unreadNotificationsCount > 0 && (
+                  <span className="absolute -top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs text-white">
+                    {unreadNotificationsCount}
+                  </span>
+                )}
+              </div>
               Notifications
             </Link>
 

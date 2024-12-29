@@ -1,46 +1,42 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  user: null,
   orders: [],
 };
 
-export const userSlice = createSlice({
+const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action) => {
-      state.user = action.payload;
-    },
-    addOrder: (state, action) => {
-      state.orders = [action.payload, ...state.orders];
-      // Also update localStorage
-      const savedOrders = localStorage.getItem("orderHistory");
-      const allOrders = savedOrders ? JSON.parse(savedOrders) : [];
-      localStorage.setItem(
-        "orderHistory",
-        JSON.stringify([action.payload, ...allOrders]),
-      );
-    },
     loadOrders: (state, action) => {
       state.orders = action.payload;
     },
+    addOrder: (state, action) => {
+      state.orders.unshift(action.payload);
+    },
     clearOrders: (state) => {
       state.orders = [];
-      // Also clear from localStorage
-      localStorage.removeItem("orderHistory");
     },
-    clearUser: (state) => {
-      state.user = null;
-      state.orders = [];
+    updateOrder: (state, action) => {
+      const { orderId, updates } = action.payload;
+      const orderIndex = state.orders.findIndex(
+        (order) => order.orderId === orderId,
+      );
+      if (orderIndex !== -1) {
+        state.orders[orderIndex] = { ...state.orders[orderIndex], ...updates };
+      }
+    },
+    deleteOrder: (state, action) => {
+      state.orders = state.orders.filter(
+        (order) => order.orderId !== action.payload,
+      );
     },
   },
 });
 
-export const { setUser, addOrder, loadOrders, clearOrders, clearUser } =
+export const { loadOrders, addOrder, clearOrders, updateOrder, deleteOrder } =
   userSlice.actions;
 
-export const selectUser = (state) => state.user.user;
 export const selectOrders = (state) => state.user.orders;
 
 export default userSlice.reducer;

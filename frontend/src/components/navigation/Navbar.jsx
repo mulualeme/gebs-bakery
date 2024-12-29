@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
+import { io } from "socket.io-client";
 import {
   Menu,
   ShoppingCart,
@@ -22,6 +23,7 @@ import { CartSlider } from "../cart/CartSlider";
 import { LoginPopup } from "../auth/LoginPopup";
 import { AnimatePresence } from "framer-motion";
 import { OrderHistory } from "../user/OrderHistory";
+import { useScrollDirection } from "../../hooks/useScrollDirection";
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -31,16 +33,68 @@ const navItems = [
 ];
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isOrderHistoryOpen, setIsOrderHistoryOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const { items } = useCart();
   const dispatch = useDispatch();
+
   const { user } = useSelector((state) => state.auth);
   const location = useLocation();
   const profileMenuRef = useRef(null);
+  const isScrollingDown = useScrollDirection();
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    if (user) {
+      // Connect to WebSocket server
+      socketRef.current = io(import.meta.env.VITE_API_URL, {
+        auth: { token: user.token },
+      });
+
+      // Listen for new notifications
+      socketRef.current.on("newNotification", (notification) => {
+        setNotifications((prev) => [notification, ...prev]);
+      });
+
+      // Fetch existing notifications
+      fetchNotifications();
+
+      // Cleanup on unmount
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+      };
+    }
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/notifications`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch notifications");
+      }
+
+      const data = await response.json();
+      setNotifications(data.notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
 
   useEffect(() => {
     // Check if we need to show login popup from route state
@@ -74,9 +128,17 @@ const Navbar = () => {
     window.location.href = "/";
   };
 
+  const unreadNotificationsCount = notifications.filter(
+    (notification) => !notification.isRead,
+  ).length;
+
   return (
     <>
-      <header className="fixed left-0 top-0 z-50 w-full bg-white shadow-sm">
+      <header
+        className={`fixed inset-x-0 top-0 z-40 bg-white/80 backdrop-blur-md transition-transform duration-300 ${
+          isScrollingDown ? "-translate-y-full" : "translate-y-0"
+        }`}
+      >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Logo />
 
@@ -146,7 +208,14 @@ const Navbar = () => {
                       className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
                       onClick={() => setShowProfileMenu(false)}
                     >
-                      <Bell className="mr-3 h-5 w-5" />
+                      <div className="relative">
+                        <Bell className="mr-3 h-5 w-5" />
+                        {unreadNotificationsCount > 0 && (
+                          <span className="absolute -top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs text-white">
+                            {unreadNotificationsCount}
+                          </span>
+                        )}
+                      </div>
                       Notifications
                     </Link>
 
@@ -201,10 +270,10 @@ const Navbar = () => {
             )}
 
             <button
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="rounded-full p-2 text-gray-600 transition-colors hover:bg-primary/10 hover:text-primary md:hidden"
             >
-              {isOpen ? (
+              {isMenuOpen ? (
                 <X className="h-6 w-6" />
               ) : (
                 <Menu className="h-6 w-6" />
@@ -213,11 +282,11 @@ const Navbar = () => {
           </div>
 
           <MobileMenu
-            isOpen={isOpen}
+            isOpen={isMenuOpen}
             items={navItems}
             currentPath={location.pathname}
             setIsLoginOpen={setIsLoginOpen}
-            setIsOpen={setIsOpen}
+            setIsOpen={setIsMenuOpen}
             onOpenOrderHistory={() => setIsOrderHistoryOpen(true)}
           />
         </div>

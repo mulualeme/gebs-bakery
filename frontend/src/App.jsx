@@ -18,6 +18,7 @@ import { CartProvider } from "./context/CartContext";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./redux/store";
+import Notifications from "./pages/Notifications";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -53,6 +54,7 @@ export default function App() {
                 <Route path="/about" element={<About />} />
                 <Route path="/catering" element={<Catering />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/notifications" element={<Notifications />} />
                 <Route
                   path="/settings"
                   element={

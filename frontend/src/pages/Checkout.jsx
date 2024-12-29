@@ -6,6 +6,7 @@ import { MapPin, Truck, Store, Wallet } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addOrder } from "../redux/slices/userSlice";
 import { LoginPopup } from "../components/auth/LoginPopup";
+import Loader from "../components/common/Loader";
 import {
   formatPhoneNumber,
   validateForm as validateFormHelper,
@@ -13,9 +14,6 @@ import {
 
 export default function Checkout() {
   const apiUrl = import.meta.env.VITE_API_URL;
-  const handleClick = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
   const { items, clearCart } = useCart();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -30,6 +28,7 @@ export default function Checkout() {
     phone: "",
     address: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     console.log("Current user state:", user);
@@ -107,48 +106,94 @@ export default function Checkout() {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted"); // Debug log
+    console.log("Form submitted");
 
     if (!validateForm()) {
-      console.log("Form validation failed"); // Debug log
+      console.log("Form validation failed");
       return;
     }
 
     if (!user) {
       setShowLogin(true);
-      console.log("User not logged in, showing login popup"); // Debug log
+      console.log("User not logged in, showing login popup");
       return;
     }
 
-    // Proceed with order creation
+    setIsSubmitting(true);
 
-    // Create new order object
-    const newOrder = {
-      id: `ORD-${Date.now().toString().slice(-6)}`,
-      date: new Date().toLocaleDateString(),
-      status: "Processing",
-      items: items,
-      subtotal: subtotal,
-      deliveryFee: deliveryFee,
-      total: total,
-      deliveryMethod: deliveryMethod,
-      address: formData.address,
-      userId: user.email,
-    };
-
-    // Dispatch order to Redux store
-    dispatch(addOrder(newOrder));
-
-    // Clear cart and navigate to confirmation
-    clearCart();
-    navigate("/order-confirmation", {
-      state: {
+    try {
+      // Create order object
+      const orderData = {
+        items: items.map((item) => ({
+          _id: item._id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          notes: item.notes,
+        })),
+        contactInfo: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: deliveryMethod === "delivery" ? formData.address : "",
+        },
         deliveryMethod,
-        address: formData.address,
-      },
-    });
+        paymentMethod,
+        subtotal,
+        deliveryFee,
+        total,
+      };
+
+      // Send order to backend
+      const response = await fetch(`${apiUrl}/api/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create order");
+      }
+
+      const data = await response.json();
+      console.log("Order created:", data);
+
+      // Add order to Redux store
+      dispatch(
+        addOrder({
+          id: data.order.orderId,
+          date: new Date().toLocaleDateString(),
+          status: data.order.orderStatus,
+          items: items,
+          subtotal,
+          deliveryFee,
+          total,
+          deliveryMethod,
+          address: formData.address,
+          userId: user.email,
+        }),
+      );
+
+      // Clear cart and navigate to confirmation
+      clearCart();
+      navigate("/order-confirmation", {
+        state: {
+          orderId: data.order.orderId,
+          deliveryMethod,
+          address: formData.address,
+        },
+      });
+    } catch (error) {
+      console.error("Error creating order:", error);
+      // Here you might want to show an error message to the user
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -406,11 +451,18 @@ export default function Checkout() {
               </div>
 
               <button
-                onClick={handleClick}
                 type="submit"
-                className="w-full rounded-lg bg-primary py-3 text-center font-medium text-white transition-colors hover:bg-primary/90"
+                disabled={isSubmitting}
+                className="w-full rounded-lg bg-primary py-3 text-center font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Place Order - ${total.toFixed(2)}
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader size="sm" />
+                    Processing Order...
+                  </span>
+                ) : (
+                  `Place Order - $${total.toFixed(2)}`
+                )}
               </button>
             </motion.form>
           </div>
