@@ -59,53 +59,11 @@ A modern, full-stack e-commerce website for a bakery, built with React, Vite, an
 - **Icons**: Lucide React
 - **HTTP Client**: Axios
 
-## Getting Started
 
-1. Clone the repository
 
-```bash
-git clone [repository-url]
-```
-
-2. Install dependencies
-
-```bash
-cd frontend
-npm install
-```
-
-3. Set up environment variables
-
-```bash
-cp .env.example .env
-```
-
-4. Start the development server
-
-```bash
-npm run dev
-```
-
-## Environment Variables
-
-```env
-VITE_API_URL=http://localhost:5000
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Contact
 
-- Website: [gebsbakery.com](https://gebsbakery.com)
-- Email: support@gebsbakery.com
-- Phone: (123) 456-7890
